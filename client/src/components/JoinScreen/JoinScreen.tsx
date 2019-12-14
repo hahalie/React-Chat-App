@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+import './JoinScreen.css'
+
 interface Props {}
 
 const JoinScreen: React.FC<Props> = () => {

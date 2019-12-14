@@ -3,6 +3,12 @@ import queryString from "query-string";
 import io from "socket.io-client";
 import { RouteComponentProps } from "react-router-dom";
 
+import Status from "../Status/Status";
+import InputBar from "../InputBar/InputBar";
+import Messages from "../Messages/Messages";
+
+import './ChatScreen.css'
+
 interface Props {}
 
 let socket: any;
@@ -10,6 +16,8 @@ let socket: any;
 const ChatScreen: React.FC<Props> = ({ location }: RouteComponentProps) => {
   const [name, setName] = useState<string | string[]>("");
   const [room, setRoom] = useState<string | string[]>("");
+  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<string[]>([]);
 
   const ENDPOINT: string = "localhost:5000";
 
@@ -32,11 +40,30 @@ const ChatScreen: React.FC<Props> = ({ location }: RouteComponentProps) => {
     };
   }, [ENDPOINT, location.search]);
 
+  useEffect(() => {
+    socket.on("message", message => {
+      setMessages([...messages, message]);
+    });
+  }, [messages]);
+
+  const sendMessage = event => {
+    event.preventDefault();
+
+    if (message) {
+      socket.emit("sendMessage", message, () => setMessage(""));
+    }
+  };
 
   return (
     <div className="chatScreenOuterContainer">
       <div className="chatScreenInnerContainer">
-        This is {name}'s Chat Screen in room #{room}
+      <Status room={room} />
+        <Messages messages={messages} name={name} />
+        <InputBar
+          message={message}
+          setMessage={setMessage}
+          sendMessage={sendMessage}
+        />
       </div>
     </div>
   );
